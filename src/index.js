@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/', (req, res) => {
     res.render('login')
-})
+});
 
 app.get ('/register', (req, res) => {
     res.render('register')
@@ -33,8 +33,8 @@ app.post('/register', async(req, res) => {
     newstudent = new Student({uname, encpass});
     Studentsave = await newstudent.save();
     res.redirect('/register')
-})
+});
 
 app.listen(port, () => {
     console.log(`server running on port ${port}`)
-})
+});
