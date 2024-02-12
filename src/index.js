@@ -17,8 +17,30 @@ app.get('/', (req, res) => {
     res.render('login')
 })
 
+app.get('/index',(req,res) => {
+    res.render('index')
+})
+app.post('/', async (req,res) => {
+    try{
+        // const {uname, pass} = req.body;
+        const checkuser = await Student.findOne({uname:req.body.uname})
+        if(checkuser){
+            const checkpass = await phash.compare(req.body.pass, checkuser.pass)
+            if(checkpass){
+                res.redirect('/index')
+            }
+            else{res.send('Incorrect password')}
+        }
+        else{res.send('Username does not exist')}
+        // console.log(uname, pass);
+    }
+    catch(error){
+        res.send(error)
+    }
+})
+
 app.get ('/register', (req, res) => {
-    res.render('register')
+    res.render('register',{ message: req.query.message })
 });
 
 app.post('/register', async(req, res) => {
@@ -26,13 +48,17 @@ app.post('/register', async(req, res) => {
 
     const {uname, pass} = req.body;
     
-    console.log(uname, pass)
-    saltRounds = 10;
-    encpass = phash.hash(pass, saltRounds);
-    console.log(encpass)
-    newstudent = new Student({uname, encpass});
-    Studentsave = await newstudent.save();
-    res.redirect('/register')
+    existingUser = await Student.findOne({uname});
+    if(existingUser) {res.send('User name alredy Exits. Plase try with another name')}
+    else{
+    enpass = await phash.hash(pass, 10);
+    newStudent = new Student({
+        uname: uname,
+        pass: enpass
+    });
+    console.log(uname, enpass)
+    Studentsave = await newStudent.save();
+    res.redirect('/register?message=Registered+Successfuly');}
 })
 
 app.listen(port, () => {
